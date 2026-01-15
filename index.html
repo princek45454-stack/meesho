@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ShopEasy - Meesho Clone</title>
-    <!-- Font Awesome for icons -->
+    <title>ShopEasy - Complete E-commerce</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* All the same CSS as before (unchanged) */
         * {
             margin: 0;
             padding: 0;
@@ -20,7 +19,6 @@
             background-color: #f5f5f5;
         }
 
-        /* Header Styles */
         .header {
             background: white;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
@@ -107,7 +105,6 @@
             font-size: 12px;
         }
 
-        /* Categories Nav */
         .categories-nav {
             background: white;
             border-top: 1px solid #eee;
@@ -129,7 +126,6 @@
             color: #ff3f6c;
         }
 
-        /* Hero Section */
         .hero-section {
             padding: 20px 40px;
         }
@@ -166,7 +162,6 @@
             font-size: 16px;
         }
 
-        /* Categories Grid */
         .categories-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -194,7 +189,6 @@
             margin-bottom: 10px;
         }
 
-        /* Products Section */
         .section-title {
             font-size: 24px;
             margin: 30px 40px 20px;
@@ -271,7 +265,6 @@
             font-weight: 500;
         }
 
-        /* Footer */
         .footer {
             background: #2d3436;
             color: white;
@@ -312,7 +305,108 @@
             font-size: 14px;
         }
 
-        /* Mobile Responsive */
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            right: 15px;
+            top: 10px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .close-modal:hover {
+            color: #333;
+        }
+
+        .modal h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .modal-btn {
+            background: #ff3f6c;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            width: 100%;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .modal-btn.secondary {
+            background: #666;
+            margin-top: 5px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            background: #ff3f6c;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .logout-btn {
+            background: none;
+            border: none;
+            color: #ff3f6c;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
         @media (max-width: 768px) {
             .main-header {
                 padding: 15px 20px;
@@ -342,7 +436,7 @@
     </style>
 </head>
 <body>
-    <!-- Header Section -->
+    <!-- Header -->
     <header class="header">
         <div class="top-bar">
             🎉 Flat 50% OFF on First Order | Use Code: WELCOME50 🎉
@@ -352,43 +446,88 @@
             <a href="#" class="logo">Shop<span>Easy</span></a>
             
             <div class="search-box">
-                <input type="text" placeholder="Search for products, brands and more...">
-                <button><i class="fas fa-search"></i> Search</button>
+                <input type="text" id="searchInput" placeholder="Search for products...">
+                <button onclick="searchProducts()"><i class="fas fa-search"></i> Search</button>
             </div>
             
             <div class="header-icons">
-                <a href="#" class="icon-item">
+                <div class="icon-item" onclick="toggleAuthModal()">
                     <i class="fas fa-user"></i>
-                    <span>Profile</span>
-                </a>
-                <a href="#" class="icon-item">
-                    <i class="fas fa-heart"></i>
-                    <span>Wishlist</span>
-                </a>
-                <a href="#" class="icon-item">
+                    <span id="userStatus">Login</span>
+                </div>
+                <a href="#" class="icon-item" onclick="showCart()">
                     <i class="fas fa-shopping-cart"></i>
-                    <span>Cart</span>
+                    <span id="cartCount">Cart (0)</span>
                 </a>
-                <a href="#" class="icon-item">
-                    <i class="fas fa-store"></i>
-                    <span>Become Seller</span>
+                <a href="#" class="icon-item" onclick="showOrders()">
+                    <i class="fas fa-box"></i>
+                    <span>Orders</span>
                 </a>
             </div>
         </div>
         
         <nav class="categories-nav">
-            <a href="#">Fashion</a>
-            <a href="#">Electronics</a>
-            <a href="#">Home & Kitchen</a>
-            <a href="#">Beauty</a>
-            <a href="#">Mobiles</a>
-            <a href="#">Appliances</a>
-            <a href="#">Toys</a>
-            <a href="#">Sports</a>
-            <a href="#">Books</a>
-            <a href="#">More</a>
+            <a href="#" onclick="filterCategory('all')">All</a>
+            <a href="#" onclick="filterCategory('Fashion')">Fashion</a>
+            <a href="#" onclick="filterCategory('Electronics')">Electronics</a>
+            <a href="#" onclick="filterCategory('Home')">Home</a>
+            <a href="#" onclick="filterCategory('Beauty')">Beauty</a>
+            <a href="#" onclick="filterCategory('Sports')">Sports</a>
         </nav>
     </header>
+
+    <!-- Authentication Modal -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="toggleAuthModal()">&times;</span>
+            <h2 id="modalTitle">Login</h2>
+            
+            <div id="loginForm">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" placeholder="Enter your password">
+                </div>
+                <button class="modal-btn" onclick="login()">Login</button>
+                <button class="modal-btn secondary" onclick="showRegisterForm()">Create New Account</button>
+            </div>
+            
+            <div id="registerForm" style="display: none;">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="registerName" placeholder="Enter your name">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="registerEmail" placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="registerPassword" placeholder="Create a password">
+                </div>
+                <button class="modal-btn" onclick="register()">Register</button>
+                <button class="modal-btn secondary" onclick="showLoginForm()">Already have account? Login</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Modal -->
+    <div id="cartModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <span class="close-modal" onclick="toggleCartModal()">&times;</span>
+            <h2>Your Cart</h2>
+            <div id="cartItems">
+                <!-- Cart items will be loaded here -->
+            </div>
+            <div id="cartTotal" style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #eee;">
+                <h3>Total: ₹<span id="totalAmount">0</span></h3>
+                <button class="modal-btn" onclick="checkout()">Checkout</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Hero Section -->
     <section class="hero-section">
@@ -396,7 +535,7 @@
             <div class="hero-content">
                 <h1>Great Shopping Festival</h1>
                 <p>Upto 70% OFF on all products | Free Shipping | COD Available</p>
-                <button class="shop-now-btn">Shop Now →</button>
+                <button class="shop-now-btn" onclick="loadProducts()">Shop Now →</button>
             </div>
             <div class="hero-image">
                 <i class="fas fa-shopping-bag" style="font-size: 120px; opacity: 0.8;"></i>
@@ -404,47 +543,10 @@
         </div>
     </section>
 
-    <!-- Categories Section -->
-    <section class="hero-section">
-        <h2 class="section-title">Shop By Categories</h2>
-        <div class="categories-grid">
-            <div class="category-card">
-                <i class="fas fa-tshirt"></i>
-                <h3>Fashion</h3>
-            </div>
-            <div class="category-card">
-                <i class="fas fa-mobile-alt"></i>
-                <h3>Mobiles</h3>
-            </div>
-            <div class="category-card">
-                <i class="fas fa-laptop"></i>
-                <h3>Electronics</h3>
-            </div>
-            <div class="category-card">
-                <i class="fas fa-home"></i>
-                <h3>Home</h3>
-            </div>
-            <div class="category-card">
-                <i class="fas fa-utensils"></i>
-                <h3>Kitchen</h3>
-            </div>
-            <div class="category-card">
-                <i class="fas fa-heartbeat"></i>
-                <h3>Beauty</h3>
-            </div>
-        </div>
-    </section>
-
-    <!-- Featured Products -->
-    <h2 class="section-title">Trending Products</h2>
-    <div class="products-grid" id="products-container">
-        <!-- Products will be loaded here by JavaScript -->
-    </div>
-
-    <!-- Deals of the Day -->
-    <h2 class="section-title">Deals of the Day</h2>
-    <div class="products-grid" id="deals-container">
-        <!-- Deals will be loaded here by JavaScript -->
+    <!-- Products Section -->
+    <h2 class="section-title" id="productsTitle">Featured Products</h2>
+    <div class="products-grid" id="productsContainer">
+        <!-- Products will be loaded here -->
     </div>
 
     <!-- Footer -->
@@ -472,10 +574,9 @@
                 <a href="#">Privacy</a>
             </div>
             <div class="footer-column">
-                <h3>Contact Us</h3>
+                <h3>Contact</h3>
                 <a href="#"><i class="fas fa-phone"></i> +91 9876543210</a>
                 <a href="#"><i class="fas fa-envelope"></i> help@shopeasy.com</a>
-                <a href="#"><i class="fas fa-map-marker-alt"></i> Mumbai, India</a>
             </div>
         </div>
         <div class="copyright">
@@ -484,172 +585,191 @@
     </footer>
 
     <script>
-        // Product Data
-        const products = [
-            {
-                id: 1,
-                name: "Men's Casual T-Shirt",
-                price: 299,
-                originalPrice: 599,
-                image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400",
-                category: "Fashion"
-            },
-            {
-                id: 2,
-                name: "Wireless Bluetooth Headphones",
-                price: 1299,
-                originalPrice: 2599,
-                image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w-400",
-                category: "Electronics"
-            },
-            {
-                id: 3,
-                name: "Women's Handbag",
-                price: 499,
-                originalPrice: 999,
-                image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=400",
-                category: "Fashion"
-            },
-            {
-                id: 4,
-                name: "Smart Watch",
-                price: 1999,
-                originalPrice: 3999,
-                image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400",
-                category: "Electronics"
-            },
-            {
-                id: 5,
-                name: "Kitchen Mixer Grinder",
-                price: 1499,
-                originalPrice: 2999,
-                image: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400",
-                category: "Home"
-            },
-            {
-                id: 6,
-                name: "Sports Shoes",
-                price: 799,
-                originalPrice: 1599,
-                image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400",
-                category: "Sports"
-            },
-            {
-                id: 7,
-                name: "Lipstick Set",
-                price: 399,
-                originalPrice: 799,
-                image: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=400",
-                category: "Beauty"
-            },
-            {
-                id: 8,
-                name: "Backpack",
-                price: 599,
-                originalPrice: 1199,
-                image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400",
-                category: "Fashion"
-            }
-        ];
-
-        // Function to create product card HTML
-        function createProductCard(product) {
-            const discount = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
-            
-            return `
-                <div class="product-card" onclick="viewProduct(${product.id})">
-                    <img src="${product.image}" alt="${product.name}" class="product-img">
-                    <div class="product-info">
-                        <h3 class="product-title">${product.name}</h3>
-                        <div>
-                            <span class="original-price">₹${product.originalPrice}</span>
-                            <span class="price">₹${product.price}</span>
-                            <span class="discount">(${discount}% OFF)</span>
-                        </div>
-                        <button class="add-to-cart" onclick="event.stopPropagation(); addToCart(${product.id})">
-                            <i class="fas fa-shopping-cart"></i> Add to Cart
-                        </button>
-                    </div>
-                </div>
-            `;
-        }
-
-        // Function to load products
-        function loadProducts() {
-            const productsContainer = document.getElementById('products-container');
-            const dealsContainer = document.getElementById('deals-container');
-            
-            // Clear containers
-            productsContainer.innerHTML = '';
-            dealsContainer.innerHTML = '';
-            
-            // Load first 4 products as trending
-            products.slice(0, 4).forEach(product => {
-                productsContainer.innerHTML += createProductCard(product);
-            });
-            
-            // Load last 4 products as deals
-            products.slice(4, 8).forEach(product => {
-                dealsContainer.innerHTML += createProductCard(product);
-            });
-        }
-
-        // Cart functionality
-        let cart = [];
+        // API Base URL
+        const API_BASE = 'http://localhost:3000/api';
         
-        function addToCart(productId) {
-            const product = products.find(p => p.id === productId);
-            cart.push(product);
-            alert(`${product.name} added to cart!\nTotal items in cart: ${cart.length}`);
-            updateCartCount();
-        }
+        // Current user state
+        let currentUser = null;
+        let cartItems = [];
         
-        function updateCartCount() {
-            const cartIcon = document.querySelector('.header-icons a:nth-child(3) span');
-            if (cart.length > 0) {
-                cartIcon.textContent = `Cart (${cart.length})`;
-            }
-        }
+        // DOM Elements
+        const productsContainer = document.getElementById('productsContainer');
+        const authModal = document.getElementById('authModal');
+        const cartModal = document.getElementById('cartModal');
+        const cartCount = document.getElementById('cartCount');
+        const userStatus = document.getElementById('userStatus');
         
-        function viewProduct(productId) {
-            const product = products.find(p => p.id === productId);
-            alert(`Viewing: ${product.name}\nPrice: ₹${product.price}\nCategory: ${product.category}`);
-        }
-
-        // Search functionality
-        document.querySelector('.search-box button').addEventListener('click', function() {
-            const searchTerm = document.querySelector('.search-box input').value.toLowerCase();
-            if (searchTerm) {
-                const filteredProducts = products.filter(product => 
-                    product.name.toLowerCase().includes(searchTerm) || 
-                    product.category.toLowerCase().includes(searchTerm)
-                );
-                
-                if (filteredProducts.length > 0) {
-                    alert(`Found ${filteredProducts.length} products for "${searchTerm}"`);
-                } else {
-                    alert(`No products found for "${searchTerm}"`);
-                }
-            }
-        });
-
-        // Initialize the page
+        // Initialize
         document.addEventListener('DOMContentLoaded', function() {
+            checkLoginStatus();
             loadProducts();
-            
-            // Add click events to category cards
-            document.querySelectorAll('.category-card').forEach(card => {
-                card.addEventListener('click', function() {
-                    const category = this.querySelector('h3').textContent;
-                    alert(`Browsing ${category} category`);
-                });
-            });
-            
-            // Shop Now button
-            document.querySelector('.shop-now-btn').addEventListener('click', function() {
-                alert('Redirecting to all products page...');
-            });
         });
-    </script>
-</body>
-</html>
+        
+        // Check if user is logged in
+        function checkLoginStatus() {
+            const savedUser = localStorage.getItem('user');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                userStatus.textContent = currentUser.name;
+                loadCart();
+            }
+        }
+        
+        // Load products from backend
+        async function loadProducts() {
+            try {
+                const response = await fetch(`${API_BASE}/products`);
+                const products = await response.json();
+                displayProducts(products);
+            } catch (error) {
+                console.error('Error loading products:', error);
+                // Fallback to static products if backend fails
+                displayProducts(getStaticProducts());
+            }
+        }
+        
+        // Display products
+        function displayProducts(products) {
+            productsContainer.innerHTML = '';
+            
+            products.forEach(product => {
+                const discount = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
+                
+                const productCard = `
+                    <div class="product-card">
+                        <img src="${product.image}" alt="${product.name}" class="product-img">
+                        <div class="product-info">
+                            <h3 class="product-title">${product.name}</h3>
+                            <p style="color: #666; font-size: 14px; margin-bottom: 10px;">${product.description || ''}</p>
+                            <div>
+                                <span class="original-price">₹${product.originalPrice}</span>
+                                <span class="price">₹${product.price}</span>
+                                <span class="discount">(${discount}% OFF)</span>
+                            </div>
+                            <button class="add-to-cart" onclick="addToCart(${product.id})">
+                                <i class="fas fa-shopping-cart"></i> Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                productsContainer.innerHTML += productCard;
+            });
+        }
+        
+        // Search products
+        async function searchProducts() {
+            const query = document.getElementById('searchInput').value;
+            if (!query) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/products/search/${query}`);
+                const products = await response.json();
+                displayProducts(products);
+                document.getElementById('productsTitle').textContent = `Search Results for "${query}"`;
+            } catch (error) {
+                console.error('Search error:', error);
+            }
+        }
+        
+        // Filter by category
+        async function filterCategory(category) {
+            try {
+                const response = await fetch(`${API_BASE}/products`);
+                const allProducts = await response.json();
+                
+                const filtered = category === 'all' 
+                    ? allProducts 
+                    : allProducts.filter(p => p.category === category);
+                
+                displayProducts(filtered);
+                document.getElementById('productsTitle').textContent = 
+                    category === 'all' ? 'All Products' : `${category} Products`;
+            } catch (error) {
+                console.error('Filter error:', error);
+            }
+        }
+        
+        // Authentication functions
+        function toggleAuthModal() {
+            authModal.style.display = authModal.style.display === 'flex' ? 'none' : 'flex';
+        }
+        
+        function showRegisterForm() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'block';
+            document.getElementById('modalTitle').textContent = 'Register';
+        }
+        
+        function showLoginForm() {
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('modalTitle').textContent = 'Login';
+        }
+        
+        // Register user
+        async function register() {
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            
+            if (!name || !email || !password) {
+                alert('Please fill all fields');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Registration successful! Please login.');
+                    showLoginForm();
+                } else {
+                    alert(result.error);
+                }
+            } catch (error) {
+                alert('Registration failed. Please try again.');
+            }
+        }
+        
+        // Login user
+        async function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!email || !password) {
+                alert('Please enter email and password');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    currentUser = result.user;
+                    localStorage.setItem('user', JSON.stringify(currentUser));
+                    userStatus.textContent = currentUser.name;
+                    toggleAuthModal();
+                    loadCart();
+                    alert('Login successful!');
+                } else {
+                    alert(result.error);
+                }
+            } catch (error) {
+                alert('Login failed. Please try again.');
+            }
+        }
+        
+        //
