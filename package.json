@@ -1,0 +1,387 @@
+{
+  "name": "shopeasy-backend",
+  "version": "1.0.0",
+  "description": "Simple backend for ShopEasy",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "body-parser": "^1.20.2"
+  }
+}
+const express = require('express');
+const cors = require('cors');
+const fs = require('fs').promises;
+const path = require('path');
+
+const app = express();
+const PORT = 3000;
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// Data files
+const PRODUCTS_FILE = path.join(__dirname, 'products.json');
+const USERS_FILE = path.join(__dirname, 'users.json');
+
+// Initialize data files
+async function initializeData() {
+    try {
+        // Initialize products file
+        try {
+            await fs.access(PRODUCTS_FILE);
+        } catch {
+            const initialProducts = [
+                {
+                    id: 1,
+                    name: "Men's Casual T-Shirt",
+                    price: 299,
+                    originalPrice: 599,
+                    image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400",
+                    category: "Fashion",
+                    description: "Comfortable cotton t-shirt for men",
+                    stock: 50
+                },
+                {
+                    id: 2,
+                    name: "Wireless Bluetooth Headphones",
+                    price: 1299,
+                    originalPrice: 2599,
+                    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400",
+                    category: "Electronics",
+                    description: "High quality wireless headphones",
+                    stock: 30
+                },
+                {
+                    id: 3,
+                    name: "Women's Handbag",
+                    price: 499,
+                    originalPrice: 999,
+                    image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=400",
+                    category: "Fashion",
+                    description: "Stylish leather handbag",
+                    stock: 25
+                },
+                {
+                    id: 4,
+                    name: "Smart Watch",
+                    price: 1999,
+                    originalPrice: 3999,
+                    image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400",
+                    category: "Electronics",
+                    description: "Smart watch with multiple features",
+                    stock: 40
+                },
+                {
+                    id: 5,
+                    name: "Kitchen Mixer Grinder",
+                    price: 1499,
+                    originalPrice: 2999,
+                    image: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400",
+                    category: "Home",
+                    description: "3-jar mixer grinder for kitchen",
+                    stock: 20
+                },
+                {
+                    id: 6,
+                    name: "Sports Shoes",
+                    price: 799,
+                    originalPrice: 1599,
+                    image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400",
+                    category: "Sports",
+                    description: "Comfortable sports shoes",
+                    stock: 35
+                }
+            ];
+            await fs.writeFile(PRODUCTS_FILE, JSON.stringify(initialProducts, null, 2));
+            console.log('Products file created');
+        }
+
+        // Initialize users file
+        try {
+            await fs.access(USERS_FILE);
+        } catch {
+            const initialUsers = [
+                {
+                    id: 1,
+                    email: "demo@shopeasy.com",
+                    password: "demo123",
+                    name: "Demo User",
+                    cart: []
+                }
+            ];
+            await fs.writeFile(USERS_FILE, JSON.stringify(initialUsers, null, 2));
+            console.log('Users file created');
+        }
+    } catch (error) {
+        console.error('Error initializing data:', error);
+    }
+}
+
+// Read data from file
+async function readData(filePath) {
+    try {
+        const data = await fs.readFile(filePath, 'utf8');
+        return JSON.parse(data);
+    } catch (error) {
+        console.error(`Error reading ${filePath}:`, error);
+        return [];
+    }
+}
+
+// Write data to file
+async function writeData(filePath, data) {
+    try {
+        await fs.writeFile(filePath, JSON.stringify(data, null, 2));
+        return true;
+    } catch (error) {
+        console.error(`Error writing ${filePath}:`, error);
+        return false;
+    }
+}
+
+// API Routes
+
+// 1. Get all products
+app.get('/api/products', async (req, res) => {
+    try {
+        const products = await readData(PRODUCTS_FILE);
+        res.json(products);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch products' });
+    }
+});
+
+// 2. Get single product
+app.get('/api/products/:id', async (req, res) => {
+    try {
+        const products = await readData(PRODUCTS_FILE);
+        const product = products.find(p => p.id === parseInt(req.params.id));
+        
+        if (product) {
+            res.json(product);
+        } else {
+            res.status(404).json({ error: 'Product not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch product' });
+    }
+});
+
+// 3. Search products
+app.get('/api/products/search/:query', async (req, res) => {
+    try {
+        const query = req.params.query.toLowerCase();
+        const products = await readData(PRODUCTS_FILE);
+        
+        const filteredProducts = products.filter(product =>
+            product.name.toLowerCase().includes(query) ||
+            product.category.toLowerCase().includes(query) ||
+            product.description.toLowerCase().includes(query)
+        );
+        
+        res.json(filteredProducts);
+    } catch (error) {
+        res.status(500).json({ error: 'Search failed' });
+    }
+});
+
+// 4. User registration
+app.post('/api/register', async (req, res) => {
+    try {
+        const { email, password, name } = req.body;
+        
+        if (!email || !password || !name) {
+            return res.status(400).json({ error: 'All fields are required' });
+        }
+        
+        const users = await readData(USERS_FILE);
+        
+        // Check if user exists
+        const existingUser = users.find(user => user.email === email);
+        if (existingUser) {
+            return res.status(400).json({ error: 'User already exists' });
+        }
+        
+        // Create new user
+        const newUser = {
+            id: users.length + 1,
+            email,
+            password, // In real app, hash this password!
+            name,
+            cart: [],
+            orders: []
+        };
+        
+        users.push(newUser);
+        await writeData(USERS_FILE, users);
+        
+        res.json({ 
+            success: true, 
+            message: 'Registration successful',
+            user: { id: newUser.id, email: newUser.email, name: newUser.name }
+        });
+    } catch (error) {
+        res.status(500).json({ error: 'Registration failed' });
+    }
+});
+
+// 5. User login
+app.post('/api/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        
+        if (!email || !password) {
+            return res.status(400).json({ error: 'Email and password required' });
+        }
+        
+        const users = await readData(USERS_FILE);
+        const user = users.find(u => u.email === email && u.password === password);
+        
+        if (user) {
+            res.json({ 
+                success: true, 
+                message: 'Login successful',
+                user: { id: user.id, email: user.email, name: user.name }
+            });
+        } else {
+            res.status(401).json({ error: 'Invalid email or password' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: 'Login failed' });
+    }
+});
+
+// 6. Add to cart
+app.post('/api/cart/:userId', async (req, res) => {
+    try {
+        const { productId, quantity = 1 } = req.body;
+        const userId = parseInt(req.params.userId);
+        
+        const users = await readData(USERS_FILE);
+        const products = await readData(PRODUCTS_FILE);
+        
+        const user = users.find(u => u.id === userId);
+        const product = products.find(p => p.id === productId);
+        
+        if (!user || !product) {
+            return res.status(404).json({ error: 'User or product not found' });
+        }
+        
+        // Check if product already in cart
+        const cartItem = user.cart.find(item => item.productId === productId);
+        
+        if (cartItem) {
+            cartItem.quantity += quantity;
+        } else {
+            user.cart.push({
+                productId,
+                quantity,
+                name: product.name,
+                price: product.price,
+                image: product.image
+            });
+        }
+        
+        await writeData(USERS_FILE, users);
+        
+        res.json({ 
+            success: true, 
+            message: 'Added to cart',
+            cart: user.cart 
+        });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to add to cart' });
+    }
+});
+
+// 7. Get cart items
+app.get('/api/cart/:userId', async (req, res) => {
+    try {
+        const userId = parseInt(req.params.userId);
+        const users = await readData(USERS_FILE);
+        const user = users.find(u => u.id === userId);
+        
+        if (user) {
+            res.json(user.cart);
+        } else {
+            res.status(404).json({ error: 'User not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch cart' });
+    }
+});
+
+// 8. Create order
+app.post('/api/orders/:userId', async (req, res) => {
+    try {
+        const userId = parseInt(req.params.userId);
+        const { items, total, address } = req.body;
+        
+        const users = await readData(USERS_FILE);
+        const user = users.find(u => u.id === userId);
+        
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        
+        const newOrder = {
+            id: user.orders ? user.orders.length + 1 : 1,
+            items,
+            total,
+            address,
+            date: new Date().toISOString(),
+            status: 'pending'
+        };
+        
+        if (!user.orders) user.orders = [];
+        user.orders.push(newOrder);
+        
+        // Clear cart after order
+        user.cart = [];
+        
+        await writeData(USERS_FILE, users);
+        
+        res.json({ 
+            success: true, 
+            message: 'Order placed successfully',
+            order: newOrder 
+        });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to place order' });
+    }
+});
+
+// 9. Get user orders
+app.get('/api/orders/:userId', async (req, res) => {
+    try {
+        const userId = parseInt(req.params.userId);
+        const users = await readData(USERS_FILE);
+        const user = users.find(u => u.id === userId);
+        
+        if (user) {
+            res.json(user.orders || []);
+        } else {
+            res.status(404).json({ error: 'User not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch orders' });
+    }
+});
+
+// Serve static files (for frontend)
+app.use(express.static(path.join(__dirname, '../frontend')));
+
+// Start server
+initializeData().then(() => {
+    app.listen(PORT, () => {
+        console.log(`✅ Backend running at http://localhost:${PORT}`);
+        console.log(`✅ Frontend available at http://localhost:${PORT}`);
+        console.log(`✅ API available at http://localhost:${PORT}/api/products`);
+    });
+});
